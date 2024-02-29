@@ -25,11 +25,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     city: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(25),
       allowNull: false
     },
     state: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(2),
       allowNull: false
     },
     country: {
@@ -43,7 +43,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.FLOAT,
     },
     name: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(40),
       allowNull: false
     },
     description: {
