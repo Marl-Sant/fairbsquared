@@ -10,27 +10,27 @@ const router = express.Router()
 const validateSpot = [
     check('address')
         .exists({ checkFalsy: true })
-        .withMessage('Please provide new address'),
+        .withMessage('Please provide a valid address'),
     check('city')
         .exists({ checkFalsy: true })
-        .withMessage('Please provide a new city'),
+        .withMessage('Please provide a valid city'),
     check('state')
         .exists({ checkFalsy: true })
         .isLength({ min: 2, max: 2 })
-        .withMessage('Please provide a new state using their abbreviation'),
+        .withMessage('Please provide a valid state using their abbreviation'),
     check('country')
         .exists({ checkFalsy: true })
-        .withMessage('Please provide a new country'),
+        .withMessage('Please provide a valid country'),
     check('name')
         .exists({ checkFalsy: true })
         .isLength({ max: 40 })
-        .withMessage('Please provide the spot with a new name within the 40 character maximum'),
+        .withMessage('Please provide the spot with a valid name within the 40 character maximum'),
     check('description')
         .exists({ checkFalsy: true })
-        .withMessage('Please provide a new description for the spot'),
+        .withMessage('Please provide a valid description for the spot'),
     check('price')
         .exists({checkFalsy: true})
-        .withMessage('Please provide a new price'),
+        .withMessage('Please provide a valid price'),
     handleValidationErrors
 ]
 
