@@ -1,20 +1,45 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const { check } = require('express-validator');
-
-
 const { handleValidationErrors } = require('../../utils/validation');
 const { setTokenCookie, requireAuth } = require('../../utils/auth');
 const { Spot } = require('../../db/models');
 
 const router = express.Router()
 
+const validateSpot = [
+    check('address')
+        .exists({ checkFalsy: true })
+        .withMessage('Please provide new address'),
+    check('city')
+        .exists({ checkFalsy: true })
+        .withMessage('Please provide a new city'),
+    check('state')
+        .exists({ checkFalsy: true })
+        .isLength({ min: 2, max: 2 })
+        .withMessage('Please provide a new state using their abbreviation'),
+    check('country')
+        .exists({ checkFalsy: true })
+        .withMessage('Please provide a new country'),
+    check('name')
+        .exists({ checkFalsy: true })
+        .isLength({ max: 40 })
+        .withMessage('Please provide the spot with a new name within the 40 character maximum'),
+    check('description')
+        .exists({ checkFalsy: true })
+        .withMessage('Please provide a new description for the spot'),
+    check('price')
+        .exists({checkFalsy: true})
+        .withMessage('Please provide a new price'),
+    handleValidationErrors
+]
+
 
 //Create a new spot
 
 router.post(
     '',
-    requireAuth,
+    requireAuth, validateSpot,
     async (req, res) => {
         const { address, city, state, country, lat, lng, name, description, price } = req.body
         const spot = await Spot.create({ ownerId: req.user.id, address, city, state, country, lat, lng, name, description, price })
@@ -23,6 +48,7 @@ router.post(
     }
 )
 
+//Get all spots without search functionality
 router.get(
     '',
     async (req, res) => {
@@ -31,6 +57,8 @@ router.get(
     }
 )
 
+
+//Delete spot based on the params
 router.delete(
     "/:spotId",
     requireAuth,
@@ -54,9 +82,10 @@ router.delete(
         }
     })
 
+//Update spot based on params and prepopulated information
 router.put(
     "/:spotId",
-    requireAuth,
+    requireAuth, validateSpot,
     async (req, res) => {
         const editThisSpot = await Spot.findByPk(req.params.spotId)
         if (!editThisSpot) {
@@ -87,7 +116,6 @@ router.put(
             editThisSpot.save()
             res.json(editThisSpot)
         }
-
     }
 )
 module.exports = router
