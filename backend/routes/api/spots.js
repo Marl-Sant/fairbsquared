@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
 const { setTokenCookie, requireAuth } = require('../../utils/auth');
-const { Spot } = require('../../db/models');
+const { Spot, Review } = require('../../db/models');
 
 const router = express.Router()
 
@@ -29,7 +29,7 @@ const validateSpot = [
         .exists({ checkFalsy: true })
         .withMessage('Please provide a valid description for the spot'),
     check('price')
-        .exists({checkFalsy: true})
+        .exists({ checkFalsy: true })
         .withMessage('Please provide a valid price'),
     handleValidationErrors
 ]
@@ -118,4 +118,65 @@ router.put(
         }
     }
 )
+
+//REVIEW ROUTES TIED TO SPOTS
+
+router.post(
+    '/:spotId/reviews',
+    requireAuth,
+    async (req, res) => {
+        const { review, stars } = req.body
+        const newReview = await Review.create({ userId: req.user.id, spotId: Number(req.params.spotId), review, stars })
+        res.json(newReview)
+    })
+
+router.put(
+    '/:spotId/reviews/:reviewId',
+    requireAuth,
+    async (req, res) => {
+        const editThisReview = await Review.findByPk(req.params.reviewId)
+        if (!editThisReview) {
+            res.status(404)
+            res.json({ message: "Review was not found" })
+        } else if (editThisReview.userId !== req.user.id) {
+            res.status(401)
+            res.json({ message: "User must be the author of the review in order to make edits" })
+        } else {
+            const { review, stars } = req.body
+
+            editThisReview.review = review
+            editThisReview.stars = stars
+
+            editThisReview.save()
+            res.json(editThisReview)
+        }
+    }
+)
+
+
+router.get(
+    "/:spotId/reviews",
+    async (req, res) => {
+        const reviewsOnSpot = await Review.findAll({ where: { spotId: req.params.spotId } })
+        res.json(reviewsOnSpot)
+    }
+)
+
+router.delete(
+    "/:spotId/reviews/:reviewId",
+    async (req, res) => {
+        const deleteThisReview = await Review.findByPk(req.params.reviewId)
+        if(!deleteThisReview){
+            res.status(404)
+            res.json({message: "This review was not found and cannot be deleted"})
+        }else if(deleteThisReview.userId !== req.user.id){
+            res.status(401)
+            res.json({message: "User must be author of the review in order to delete it"})
+        }else{
+            deleteThisReview.destroy()
+            res.json({message: "Review has been successfully deleted"})
+        }
+    }
+)
+
 module.exports = router
