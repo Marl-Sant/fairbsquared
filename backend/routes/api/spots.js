@@ -1,38 +1,10 @@
 const express = require('express');
-const bcrypt = require('bcryptjs');
-const { check } = require('express-validator');
-const { handleValidationErrors } = require('../../utils/validation');
-const { setTokenCookie, requireAuth } = require('../../utils/auth');
-const { Spot, Review } = require('../../db/models');
+const { validateSpot, validateReview, validateBooking } = require('../../utils/validation');
+const { requireAuth } = require('../../utils/auth');
+const { Spot, Review, Booking } = require('../../db/models');
+
 
 const router = express.Router()
-
-const validateSpot = [
-    check('address')
-        .exists({ checkFalsy: true })
-        .withMessage('Please provide a valid address'),
-    check('city')
-        .exists({ checkFalsy: true })
-        .withMessage('Please provide a valid city'),
-    check('state')
-        .exists({ checkFalsy: true })
-        .isLength({ min: 2, max: 2 })
-        .withMessage('Please provide a valid state using their abbreviation'),
-    check('country')
-        .exists({ checkFalsy: true })
-        .withMessage('Please provide a valid country'),
-    check('name')
-        .exists({ checkFalsy: true })
-        .isLength({ max: 40 })
-        .withMessage('Please provide the spot with a valid name within the 40 character maximum'),
-    check('description')
-        .exists({ checkFalsy: true })
-        .withMessage('Please provide a valid description for the spot'),
-    check('price')
-        .exists({ checkFalsy: true })
-        .withMessage('Please provide a valid price'),
-    handleValidationErrors
-]
 
 
 //Create a new spot
@@ -123,7 +95,7 @@ router.put(
 
 router.post(
     '/:spotId/reviews',
-    requireAuth,
+    requireAuth, validateReview,
     async (req, res) => {
         const { review, stars } = req.body
         const newReview = await Review.create({ userId: req.user.id, spotId: Number(req.params.spotId), review, stars })
@@ -132,7 +104,7 @@ router.post(
 
 router.put(
     '/:spotId/reviews/:reviewId',
-    requireAuth,
+    requireAuth, validateReview,
     async (req, res) => {
         const editThisReview = await Review.findByPk(req.params.reviewId)
         if (!editThisReview) {
@@ -176,6 +148,17 @@ router.delete(
             deleteThisReview.destroy()
             res.json({message: "Review has been successfully deleted"})
         }
+    }
+)
+
+//Bookings tied to Spots
+router.post(
+    '/:spotId/bookings',
+    requireAuth, validateBooking,
+    async(req, res) => {
+        const {startDate, endDate} = req.body
+        const newBooking = await Booking.create({userId: req.user.id, spotId: Number(req.params.spotId), startDate, endDate})
+        res.json(newBooking)
     }
 )
 
