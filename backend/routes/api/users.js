@@ -4,35 +4,33 @@ const { validateSignup } = require('../../utils/validation');
 const { setTokenCookie } = require('../../utils/auth');
 const { User } = require('../../db/models');
 
-const router = express.Router()
+const router = express.Router();
 
+router.post('', validateSignup, async (req, res) => {
+  const { email, password, username, firstName, lastName } =
+    req.body;
+  const hashedPassword = bcrypt.hashSync(password);
+  const user = await User.create({
+    email,
+    username,
+    hashedPassword,
+    firstName,
+    lastName,
+  });
 
+  const safeUser = {
+    id: user.id,
+    email: user.email,
+    username: user.username,
+    firstName: user.firstName,
+    lastName: user.lastName,
+  };
 
+  await setTokenCookie(res, safeUser);
 
-
-
-router.post(
-  '',
-  validateSignup,
-  async (req, res) => {
-    const { email, password, username, firstName, lastName } = req.body;
-    const hashedPassword = bcrypt.hashSync(password);
-    const user = await User.create({ email, username, hashedPassword, firstName, lastName });
-
-    const safeUser = {
-      id: user.id,
-      email: user.email,
-      username: user.username,
-      firstName: user.firstName,
-      lastName: user.lastName
-    };
-
-    await setTokenCookie(res, safeUser);
-
-    return res.json({
-      user: safeUser
-    });
-  }
-);
+  return res.json({
+    user: safeUser,
+  });
+});
 
 module.exports = router;
