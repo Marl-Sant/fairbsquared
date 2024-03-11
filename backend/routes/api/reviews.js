@@ -4,7 +4,7 @@ const { requireAuth } = require('../../utils/auth');
 const { Review } = require('../../db/models');
 
 const router = express.Router();
-
+//Delete a spot review based on params
 router.delete('/:reviewId', async (req, res) => {
   const deleteThisReview = await Review.findByPk(
     req.params.reviewId
@@ -28,6 +28,7 @@ router.delete('/:reviewId', async (req, res) => {
   }
 });
 
+//Edit a spot review based on params
 router.put(
   '/:reviewId',
   requireAuth,

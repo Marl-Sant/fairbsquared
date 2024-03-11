@@ -30,6 +30,7 @@ router.get('/require-auth', requireAuth, (req, res) => {
   return res.json(req.user);
 });
 
+//Restores a users information with every request
 router.use(restoreUser);
 
 router.use('/session', sessionRouter);

@@ -10,7 +10,6 @@ const { Spot, Review, Booking } = require('../../db/models');
 const router = express.Router();
 
 //Create a new spot
-
 router.post('', requireAuth, validateSpot, async (req, res) => {
   const {
     address,
@@ -116,7 +115,7 @@ router.put(
 );
 
 //REVIEW ROUTES TIED TO SPOTS
-
+//Create a review based on the spot
 router.post(
   '/:spotId/reviews',
   requireAuth,
@@ -133,6 +132,7 @@ router.post(
   }
 );
 
+//Get all the reviews on spot
 router.get('/:spotId/reviews', async (req, res) => {
   const reviewsOnSpot = await Review.findAll({
     where: { spotId: req.params.spotId },
@@ -141,6 +141,7 @@ router.get('/:spotId/reviews', async (req, res) => {
 });
 
 //Bookings tied to Spots
+//Create a booking based on spot
 router.post(
   '/:spotId/bookings',
   requireAuth,

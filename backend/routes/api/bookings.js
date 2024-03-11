@@ -5,6 +5,7 @@ const { Booking } = require('../../db/models');
 
 const router = express.Router();
 
+//Get a booking based on the params
 router.get('/:bookingId', requireAuth, async (req, res) => {
   const findBooking = await Booking.findByPk(
     req.params.bookingId
@@ -22,6 +23,7 @@ router.get('/:bookingId', requireAuth, async (req, res) => {
   }
 });
 
+//Delete a booking based on a params
 router.delete('/:bookingId', requireAuth, async (req, res) => {
   const bookingToDelete = await Booking.findByPk(
     req.params.bookingId
@@ -43,6 +45,7 @@ router.delete('/:bookingId', requireAuth, async (req, res) => {
   }
 });
 
+//Edit a booking based on params
 router.put(
   '/:bookingId',
   requireAuth,

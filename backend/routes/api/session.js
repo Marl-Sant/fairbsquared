@@ -7,6 +7,7 @@ const { User } = require('../../db/models');
 
 const router = express.Router();
 
+//User login
 router.post('/', validateLogin, async (req, res, next) => {
   const { credential, password } = req.body;
 
