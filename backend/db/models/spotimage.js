@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     defaultImage: {
       type: DataTypes.BOOLEAN,
+      defaultValue:false,
       allowNull: false,
     },
     imageUrl: {

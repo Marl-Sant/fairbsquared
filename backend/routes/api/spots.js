@@ -41,8 +41,124 @@ router.post('', requireAuth, validateSpot, async (req, res) => {
 
 //Get all spots without search functionality
 router.get('', async (req, res) => {
-  const spots = await Spot.findAll();
-  res.json(spots);
+  let { searchCity, searchStartDate, searchEndDate } = req.query;
+
+  let date = new Date();
+
+  // WE ADD ONE TO MONTH TO ADJUST FOR 0 INDEX
+  // WE ADD ONE TO THE DATE TO ADJUST FOR 0 INDEX
+
+  const [year, month, day] = [
+    date.getFullYear(),
+    date.getMonth() + 1,
+    date.getDate() + 1,
+  ];
+  //IF THE SEARCHSTARTDATE SEARCH QUERY IS LEFT UNDEFINED, SET IT TO TOMORROW
+  if (
+    month === 2 ||
+    month === 4 ||
+    month === 6 ||
+    month === 9 ||
+    month === 11
+  ) {
+    //IF IT IS A LEAP YEAR AND ITS IS THE 28TH OF FEB
+    if (year % 4 === 0 && month === 2 && day === 28) {
+      date = `${year}-0${month}-29`;
+    }
+    //IF IT IS A LEAP YEAR AND ITS THE LEAP DAY OF FEB
+    else if (year % 4 === 0 && month === 2 && day === 29) {
+      date = `${year}-0${month + 1}-01`;
+    }
+    // IF IT IS NOT A LEAP YEAR AND ITS THE LAST DAY OF FEB
+    else if (month === 2 && day === 28) {
+      date = `${year}-0${month + 1}-01`;
+    }
+    // IF IT IS THE LAST DAY OF NOVEMBER
+    else if (day === 30 && month.toString() === '11') {
+      date = `${year}-12-01`;
+    }
+    // IF IT IS THE LAST DAY OF THE MONTH
+    else if (day === 30) {
+      date = `${year}-0${month + 1}-01`;
+    }
+    //IF THE MONTH HAS LESS THAN TWO DIGITS
+    else if (month.toString().length < 2) {
+      date = `${year}-0${month}-${day + 1}`;
+    }
+    // RETURN THE TOMORROW'S DATE IF NONE OF THE ABOVE APPLY
+    else {
+      date = `${year}-${month}-${day + 1}`;
+    }
+  }
+  // MONTHS THAT HAVE 31 DAYS
+  else {
+    //IF IT IS THE LAST DAY OF A MONTH THAT HAS LESS THAN TWO DIGITS
+    if (day === 31 && month.toString().length < 2) {
+      date = `${year}-0${month + 1}-01`;
+    }
+    //IF THE MONTH HAS LESS THAN TWO DIGITS
+    else if (month.toString().length < 2) {
+      date = `${year}-0${month}-${day + 1}`;
+    }
+    //IF IT IS THE LAST DAY OF OCTOBER
+    else if (day === 31 && month.toString() === '10') {
+      date = `${year}-11-01`;
+    }
+    //IF IT IS THE LAST DAY OF THE YEAR
+    else if (day === 31 && month.toString() === '12') {
+      date = `${year + 1}-01-01`;
+    } else {
+      date = `${year}-${month}-${day + 1}`;
+    }
+  }
+
+  // if (month.toString().length < 2) {
+  //   date = `${year}-0${month + 1}-${day + 1}`;
+  // }else{
+  //   date = `${year}-${month + 1}-${day + 1}`;
+  // }
+
+  console.log(date);
+  if (!searchCity) searchCity = '*';
+  if (!searchStartDate) searchStartDate = date;
+
+  const spots = await Spot.findAll({
+    // where: {
+    //   city: searchCity
+    // },
+    include: {
+      model: Booking,
+    },
+  });
+
+  //still need to add end date logic
+
+  res.json(
+    spots.filter((spot) => {
+      if (!spot.Bookings) {
+        return true;
+      } else {
+        searchStartDate = new Date(searchStartDate).getTime();
+        // console.log(searchStartDate)
+        for (let booking of spot.Bookings) {
+          for (
+            let i = new Date(booking.startDate).getTime();
+            i <= new Date(booking.endDate).getTime();
+            i += 86400000
+          ) {
+            console.log(
+              `SEARCH START DATE: ${searchStartDate} BOOKING DATE: ${i}`
+            );
+            if (searchStartDate === i) {
+              return false;
+            }
+          }
+        }
+        return true;
+      }
+    })
+    // spots
+  );
 });
 
 //Delete spot based on the params
@@ -141,7 +257,8 @@ router.get('/:spotId/reviews', async (req, res) => {
 });
 
 //Bookings tied to Spots
-//Create a booking based on spot
+//Create a booking based on spot, must add logic to return error message if the
+//dates have already been taken.
 router.post(
   '/:spotId/bookings',
   requireAuth,
