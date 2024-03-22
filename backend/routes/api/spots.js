@@ -82,22 +82,25 @@ router.get('', async (req, res) => {
           let existingBookingEnd = new Date(
             booking.endDate
           ).getTime();
-
-          if (
-            // if the searchStartDate is between an existing booking
-            (searchStartDate >= existingBookingStart &&
-              searchStartDate <= existingBookingEnd) ||
-            // if the searchEndDate is between an existing booking
-            (searchEndDate >= existingBookingStart &&
-              searchEndDate <= existingBookingEnd) ||
-            // if the existing booking start is between the search dates
-            (existingBookingStart >= searchStartDate &&
-              existingBookingStart <= searchEndDate) ||
-            // if the existing booking end is between the search dates
-            (existingBookingEnd >= searchStartDate &&
-              existingBookingEnd <= searchEndDate)
-          ) {
-            return false;
+          // if past bookings exist and have ended before your search dates, do not
+          //bother comparing
+          if (!(existingBookingEnd < searchStartDate)) {
+            if (
+              // if the searchStartDate is between an existing booking
+              (searchStartDate >= existingBookingStart &&
+                searchStartDate <= existingBookingEnd) ||
+              // if the searchEndDate is between an existing booking
+              (searchEndDate >= existingBookingStart &&
+                searchEndDate <= existingBookingEnd) ||
+              // if the existing booking start is between the search dates
+              (existingBookingStart >= searchStartDate &&
+                existingBookingStart <= searchEndDate) ||
+              // if the existing booking end is between the search dates
+              (existingBookingEnd >= searchStartDate &&
+                existingBookingEnd <= searchEndDate)
+            ) {
+              return false;
+            }
           }
         }
         return true;
