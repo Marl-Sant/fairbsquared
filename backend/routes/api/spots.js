@@ -191,8 +191,8 @@ router.get('', async (req, res) => {
   // set the end to three days later if end is empty
   let emptyEndDate = emptyStartDate.getTime() + 86400000 * 3;
 
-  // if (searchStartDate)
-  //   searchStartDate = new Date(searchStartDate).getTime();
+  if (searchStartDate)
+    searchStartDate = new Date(searchStartDate);
 
   if (searchEndDate)
     searchEndDate = new Date(searchEndDate);
@@ -226,26 +226,26 @@ router.get('', async (req, res) => {
           //bother comparing
           //**BELOW IS FOR TESTING PURPOSES, UNCOMMENT TO SEE IF COMPARISONS ARE
           // WORKING AS INTENDED
-          // console.log(
-          //   searchStartDate >= existingBookingStart &&
-          //     searchStartDate <= existingBookingEnd,
-          //   'start search is in booking'
-          // );
-          // console.log(
-          //   searchEndDate >= existingBookingStart &&
-          //     searchEndDate <= existingBookingEnd,
-          //   'end search is in booking'
-          // );
-          // console.log(
-          //   existingBookingStart >= searchStartDate &&
-          //     existingBookingStart <= searchEndDate,
-          //   'existing booking start found between search dates'
-          // );
-          // console.log(
-          //   existingBookingEnd >= searchStartDate &&
-          //     existingBookingEnd <= searchEndDate,
-          //   'existing booking end found between search dates'
-          // );
+          console.log(
+            searchStartDate >= existingBookingStart &&
+              searchStartDate <= existingBookingEnd,
+            'start search is in booking'
+          );
+          console.log(
+            searchEndDate >= existingBookingStart &&
+              searchEndDate <= existingBookingEnd,
+            'end search is in booking'
+          );
+          console.log(
+            existingBookingStart >= searchStartDate &&
+              existingBookingStart <= searchEndDate,
+            'existing booking start found between search dates'
+          );
+          console.log(
+            existingBookingEnd >= searchStartDate &&
+              existingBookingEnd <= searchEndDate,
+            'existing booking end found between search dates'
+          );
           if (existingBookingEnd >= searchStartDate) {
             if (
               // if the searchStartDate is between an existing booking
