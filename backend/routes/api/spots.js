@@ -6,7 +6,12 @@ const {
 } = require('../../utils/validation');
 const { Op } = require('sequelize');
 const { requireAuth } = require('../../utils/auth');
-const { Spot, Review, Booking } = require('../../db/models');
+const {
+  Spot,
+  Review,
+  Booking,
+  SpotImage,
+} = require('../../db/models');
 
 const router = express.Router();
 
@@ -81,8 +86,12 @@ router.get('', async (req, res) => {
   if (!searchCity) searchCity = '';
 
   const spots = await Spot.findAll({
-    where: { city: { [Op.substring]: `%${searchCity}%` } },
-    include: [{ model: Booking }, { model: Review }],
+    where: { city: { [Op.substring]: searchCity } },
+    include: [
+      { model: Booking },
+      { model: Review },
+      { model: SpotImage },
+    ],
   });
 
   res.json(
@@ -140,6 +149,14 @@ router.get('', async (req, res) => {
             }
           }
         }
+        //create and add the average star rating of the spot if there are no conflicts
+        //return the spot
+        spot.dataValues.avgStarRating =
+          spot.dataValues.Reviews.reduce(
+            (accumulate, currentValue) =>
+              accumulate + currentValue.stars,
+              0
+          ) / spot.dataValues.Reviews.length;
         return true;
       }
     })
