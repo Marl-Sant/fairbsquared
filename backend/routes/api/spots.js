@@ -47,6 +47,122 @@ router.post('', requireAuth, validateSpot, async (req, res) => {
 
 //Get all spots excluding spots that have bookings that conflict with search
 //booking params
+// router.get('', async (req, res) => {
+//   let { searchCity, searchStartDate, searchEndDate } = req.query;
+
+//   let emptyStartDate = new Date();
+
+//   let [year, month, day] = [
+//     emptyStartDate.getFullYear(),
+//     emptyStartDate.getMonth() + 1,
+//     emptyStartDate.getDate(),
+//   ];
+//   //add a zero for syntax purposes if the month doesn't have the appropriate length
+//   if (month.toString().length < 2) {
+//     month = `0${month}`;
+//   }
+//   //do the same for the day if it is not the correct length
+//   if (day.toString().length < 2) {
+//     day = `0${day}`;
+//   }
+
+//   // if the user does not input a search date, set the start to today's date if start
+//   // is empty
+//   emptyStartDate = new Date(
+//     `${year}-${month}-${day}T00:00:00Z`
+//   ).getTime();
+
+//   // set the end to three days later if end is empty
+//   let emptyEndDate = emptyStartDate + 86400000 * 3;
+
+//   if (searchStartDate)
+//     searchStartDate = new Date(searchStartDate).getTime();
+
+//   if (searchEndDate)
+//     searchEndDate = new Date(searchEndDate).getTime();
+
+//   if (!searchStartDate) searchStartDate = emptyStartDate;
+//   if (!searchEndDate) searchEndDate = emptyEndDate;
+//   if (!searchCity) searchCity = '';
+
+//   const spots = await Spot.findAll({
+//     where: { city: { [Op.substring]: searchCity } },
+//     include: [
+//       { model: Booking },
+//       { model: Review },
+//       { model: SpotImage },
+//     ],
+//   });
+
+//   res.json(
+//     spots.filter((spot) => {
+//       if (!spot.Bookings) {
+//         return true;
+//       } else {
+//         for (let booking of spot.Bookings) {
+//           let existingBookingStart = new Date(
+//             booking.startDate
+//           ).getTime();
+//           let existingBookingEnd = new Date(
+//             booking.endDate
+//           ).getTime();
+//           // if past bookings exist and have ended before your search dates, do not
+//           //bother comparing
+//           //**BELOW IS FOR TESTING PURPOSES, UNCOMMENT TO SEE IF COMPARISONS ARE
+//           // WORKING AS INTENDED
+//           // console.log(
+//           //   searchStartDate >= existingBookingStart &&
+//           //     searchStartDate <= existingBookingEnd,
+//           //   'start search is in booking'
+//           // );
+//           // console.log(
+//           //   searchEndDate >= existingBookingStart &&
+//           //     searchEndDate <= existingBookingEnd,
+//           //   'end search is in booking'
+//           // );
+//           // console.log(
+//           //   existingBookingStart >= searchStartDate &&
+//           //     existingBookingStart <= searchEndDate,
+//           //   'existing booking start found between search dates'
+//           // );
+//           // console.log(
+//           //   existingBookingEnd >= searchStartDate &&
+//           //     existingBookingEnd <= searchEndDate,
+//           //   'existing booking end found between search dates'
+//           // );
+//           if (existingBookingEnd >= searchStartDate) {
+//             if (
+//               // if the searchStartDate is between an existing booking
+//               (searchStartDate >= existingBookingStart &&
+//                 searchStartDate <= existingBookingEnd) ||
+//               // if the searchEndDate is between an existing booking
+//               (searchEndDate >= existingBookingStart &&
+//                 searchEndDate <= existingBookingEnd) ||
+//               // if the existing booking start is between the search dates
+//               (existingBookingStart >= searchStartDate &&
+//                 existingBookingStart <= searchEndDate) ||
+//               // if the existing booking end is between the search dates
+//               (existingBookingEnd >= searchStartDate &&
+//                 existingBookingEnd <= searchEndDate)
+//             ) {
+//               return false;
+//             }
+//           }
+//         }
+//         //create and add the average star rating of the spot if there are no conflicts
+//         //return the spot
+//         spot.dataValues.avgStarRating =
+//           spot.dataValues.Reviews.reduce(
+//             (accumulate, currentValue) =>
+//               accumulate + currentValue.stars,
+//             0
+//           ) / spot.dataValues.Reviews.length;
+//         return true;
+//       }
+//     })
+//   );
+// });
+
 router.get('', async (req, res) => {
   let { searchCity, searchStartDate, searchEndDate } = req.query;
 
@@ -69,17 +185,17 @@ router.get('', async (req, res) => {
   // if the user does not input a search date, set the start to today's date if start
   // is empty
   emptyStartDate = new Date(
-    `${year}-${month}-${day}T00:00:00Z`
-  ).getTime();
+    `${year}-${month}-${day}`
+  );
 
   // set the end to three days later if end is empty
-  let emptyEndDate = emptyStartDate + 86400000 * 3;
+  let emptyEndDate = emptyStartDate.getTime() + 86400000 * 3;
 
-  if (searchStartDate)
-    searchStartDate = new Date(searchStartDate).getTime();
+  // if (searchStartDate)
+  //   searchStartDate = new Date(searchStartDate).getTime();
 
   if (searchEndDate)
-    searchEndDate = new Date(searchEndDate).getTime();
+    searchEndDate = new Date(searchEndDate);
 
   if (!searchStartDate) searchStartDate = emptyStartDate;
   if (!searchEndDate) searchEndDate = emptyEndDate;
@@ -102,10 +218,10 @@ router.get('', async (req, res) => {
         for (let booking of spot.Bookings) {
           let existingBookingStart = new Date(
             booking.startDate
-          ).getTime();
+          );
           let existingBookingEnd = new Date(
             booking.endDate
-          ).getTime();
+          );
           // if past bookings exist and have ended before your search dates, do not
           //bother comparing
           //**BELOW IS FOR TESTING PURPOSES, UNCOMMENT TO SEE IF COMPARISONS ARE
@@ -162,6 +278,11 @@ router.get('', async (req, res) => {
     })
   );
 });
+
+
+
+
+
 
 //Delete spot based on the params
 router.delete('/:spotId', requireAuth, async (req, res) => {
