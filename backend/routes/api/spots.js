@@ -4,6 +4,7 @@ const {
   validateReview,
   validateBooking,
 } = require('../../utils/validation');
+const { Op } = require('sequelize');
 const { requireAuth } = require('../../utils/auth');
 const { Spot, Review, Booking } = require('../../db/models');
 
@@ -39,7 +40,8 @@ router.post('', requireAuth, validateSpot, async (req, res) => {
   res.json(spot);
 });
 
-//Get all spots without search functionality
+//Get all spots excluding spots that have bookings that conflict with search
+//booking params
 router.get('', async (req, res) => {
   let { searchCity, searchStartDate, searchEndDate } = req.query;
 
@@ -76,8 +78,10 @@ router.get('', async (req, res) => {
 
   if (!searchStartDate) searchStartDate = emptyStartDate;
   if (!searchEndDate) searchEndDate = emptyEndDate;
+  if (!searchCity) searchCity = '';
 
   const spots = await Spot.findAll({
+    where: { city: { [Op.substring]: `%${searchCity}%` } },
     include: [{ model: Booking }, { model: Review }],
   });
 
