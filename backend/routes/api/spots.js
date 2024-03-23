@@ -184,9 +184,7 @@ router.get('', async (req, res) => {
 
   // if the user does not input a search date, set the start to today's date if start
   // is empty
-  emptyStartDate = new Date(
-    `${year}-${month}-${day}`
-  );
+  emptyStartDate = new Date(`${year}-${month}-${day}`);
 
   // set the end to three days later if end is empty
   let emptyEndDate = emptyStartDate.getTime() + 86400000 * 3;
@@ -194,8 +192,7 @@ router.get('', async (req, res) => {
   if (searchStartDate)
     searchStartDate = new Date(searchStartDate);
 
-  if (searchEndDate)
-    searchEndDate = new Date(searchEndDate);
+  if (searchEndDate) searchEndDate = new Date(searchEndDate);
 
   if (!searchStartDate) searchStartDate = emptyStartDate;
   if (!searchEndDate) searchEndDate = emptyEndDate;
@@ -216,36 +213,33 @@ router.get('', async (req, res) => {
         return true;
       } else {
         for (let booking of spot.Bookings) {
-          let existingBookingStart = new Date(
-            booking.startDate
-          );
-          let existingBookingEnd = new Date(
-            booking.endDate
-          );
-          // if past bookings exist and have ended before your search dates, do not
-          //bother comparing
+          let existingBookingStart = new Date(booking.startDate);
+          let existingBookingEnd = new Date(booking.endDate);
           //**BELOW IS FOR TESTING PURPOSES, UNCOMMENT TO SEE IF COMPARISONS ARE
           // WORKING AS INTENDED
-          console.log(
-            searchStartDate >= existingBookingStart &&
-              searchStartDate <= existingBookingEnd,
-            'start search is in booking'
-          );
-          console.log(
-            searchEndDate >= existingBookingStart &&
-              searchEndDate <= existingBookingEnd,
-            'end search is in booking'
-          );
-          console.log(
-            existingBookingStart >= searchStartDate &&
-              existingBookingStart <= searchEndDate,
-            'existing booking start found between search dates'
-          );
-          console.log(
-            existingBookingEnd >= searchStartDate &&
-              existingBookingEnd <= searchEndDate,
-            'existing booking end found between search dates'
-          );
+          // console.log(
+          //   searchStartDate >= existingBookingStart &&
+          //     searchStartDate <= existingBookingEnd,
+          //   'start search is in booking'
+          // );
+          // console.log(
+          //   searchEndDate >= existingBookingStart &&
+          //     searchEndDate <= existingBookingEnd,
+          //   'end search is in booking'
+          // );
+          // console.log(
+          //   existingBookingStart >= searchStartDate &&
+          //     existingBookingStart <= searchEndDate,
+          //   'existing booking start found between search dates'
+          // );
+          // console.log(
+          //   existingBookingEnd >= searchStartDate &&
+          //     existingBookingEnd <= searchEndDate,
+          //   'existing booking end found between search dates'
+          // );
+
+          // if past bookings exist and have ended before your search dates, do not
+          //bother comparing
           if (existingBookingEnd >= searchStartDate) {
             if (
               // if the searchStartDate is between an existing booking
@@ -278,11 +272,6 @@ router.get('', async (req, res) => {
     })
   );
 });
-
-
-
-
-
 
 //Delete spot based on the params
 router.delete('/:spotId', requireAuth, async (req, res) => {
