@@ -155,7 +155,7 @@ router.get('', async (req, res) => {
           spot.dataValues.Reviews.reduce(
             (accumulate, currentValue) =>
               accumulate + currentValue.stars,
-              0
+            0
           ) / spot.dataValues.Reviews.length;
         return true;
       }

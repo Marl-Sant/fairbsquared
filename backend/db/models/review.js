@@ -36,6 +36,30 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      cleanliness: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      accuracy: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      checkIn: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      communication:{
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      location: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      value:{
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      }
     },
     {
       sequelize,
