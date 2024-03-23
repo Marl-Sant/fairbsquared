@@ -43,18 +43,29 @@ router.post('', requireAuth, validateSpot, async (req, res) => {
 router.get('', async (req, res) => {
   let { searchCity, searchStartDate, searchEndDate } = req.query;
 
-  console.log(searchStartDate);
-  console.log(searchEndDate);
-
   let emptyStartDate = new Date();
 
-  const [year, month, day] = [
+  let [year, month, day] = [
     emptyStartDate.getFullYear(),
     emptyStartDate.getMonth() + 1,
     emptyStartDate.getDate(),
   ];
+  //add a zero for syntax purposes if the month doesn't have the appropriate length
+  if (month.toString().length < 2) {
+    month = `0${month}`;
+  }
+  //do the same for the day if it is not the correct length
+  if (day.toString().length < 2) {
+    day = `0${day}`;
+  }
 
-  emptyStartDate = new Date(`${year}-${month}-${day}`).getTime();
+  // if the user does not input a search date, set the start to today's date if start
+  // is empty
+  emptyStartDate = new Date(
+    `${year}-${month}-${day}T00:00:00Z`
+  ).getTime();
+
+  // set the end to three days later if end is empty
   let emptyEndDate = emptyStartDate + 86400000 * 3;
 
   if (searchStartDate)
@@ -67,7 +78,7 @@ router.get('', async (req, res) => {
   if (!searchEndDate) searchEndDate = emptyEndDate;
 
   const spots = await Spot.findAll({
-    include: [{ model: Booking }],
+    include: [{ model: Booking }, { model: Review }],
   });
 
   res.json(
@@ -84,7 +95,29 @@ router.get('', async (req, res) => {
           ).getTime();
           // if past bookings exist and have ended before your search dates, do not
           //bother comparing
-          if (!(existingBookingEnd < searchStartDate)) {
+          //**BELOW IS FOR TESTING PURPOSES, UNCOMMENT TO SEE IF COMPARISONS ARE
+          // WORKING AS INTENDED
+          // console.log(
+          //   searchStartDate >= existingBookingStart &&
+          //     searchStartDate <= existingBookingEnd,
+          //   'start search is in booking'
+          // );
+          // console.log(
+          //   searchEndDate >= existingBookingStart &&
+          //     searchEndDate <= existingBookingEnd,
+          //   'end search is in booking'
+          // );
+          // console.log(
+          //   existingBookingStart >= searchStartDate &&
+          //     existingBookingStart <= searchEndDate,
+          //   'existing booking start found between search dates'
+          // );
+          // console.log(
+          //   existingBookingEnd >= searchStartDate &&
+          //     existingBookingEnd <= searchEndDate,
+          //   'existing booking end found between search dates'
+          // );
+          if (existingBookingEnd >= searchStartDate) {
             if (
               // if the searchStartDate is between an existing booking
               (searchStartDate >= existingBookingStart &&
